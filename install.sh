@@ -20,7 +20,7 @@ ufw allow ${SSH_PORT:-22}/tcp
 ufw allow 443/tcp     # VLESS Reality
 ufw allow 80/tcp     # 证书申请
 ufw allow 8843/udp    # Hysteria2
-ufw allow 10000:20000/udp    # 端口跳跃
+ufw allow 10000:30000/udp    # 端口跳跃
 
 # 先检查有没有 1Panel，它的防火墙会覆盖 ufw
 if systemctl is-active --quiet 1panel-core 2>/dev/null; then
@@ -71,10 +71,12 @@ Short_ID=$(docker run --rm ghcr.io/sagernet/sing-box generate rand 8 --hex)
 HY2pw=$(openssl rand -base64 16)
 
 #设置端口跳跃
+DEFAULT_INTERFACE=$(ip route | awk '/^default/ {print $5}')
+echo "检测到默认网卡为: $DEFAULT_INTERFACE"
 echo "iptables-persistent iptables-persistent/autosave_v4 boolean true" | debconf-set-selections
 echo "iptables-persistent iptables-persistent/autosave_v6 boolean true" | debconf-set-selections
 apt install -y iptables-persistent
-iptables -t nat -A PREROUTING -i eth0 -p udp --dport 10000:20000 -j DNAT --to-destination :8843
+iptables -t nat -A PREROUTING -i $DEFAULT_INTERFACE -p udp --dport 10000:30000 -j DNAT --to-destination :8843
 netfilter-persistent save
 
 # 配置config.json
@@ -181,7 +183,7 @@ echo
 echo
 echo "----------  Hysteria2配置信息 -------------"
 echo -e "端口 (Port) = 8843"
-echo -e "端口跳跃 (Port) = 10000:20000"
+echo -e "端口跳跃 (Port) = 10000-30000"
 echo -e "密码= ${HY2pw}"
 echo -e "域名 =kr.870910.xyz "
 echo
