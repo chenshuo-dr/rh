@@ -51,7 +51,7 @@ ip=$(curl -4s https://www.cloudflare.com/cdn-cgi/trace | grep -oP 'ip=\K.*$')
 
 read -p "请输入需要申请证书的域名：" CA_domain
 while [[ -z $CA_domain ]]; do
-     read -p "未输入域名，请输入需要申请证书的域名：" CA_domain
+  read -p "未输入域名，请输入需要申请证书的域名：" CA_domain
 done
 echo -e "已输入的域名：$CA_domain" && sleep 1
 
@@ -201,6 +201,6 @@ echo "----------  Hysteria2配置信息 -------------"
 echo -e "地址 (IP) = ${ip}"
 echo -e "端口 (Port) = 8843"
 echo -e "端口跳跃 (Port) = 10000-30000"
-echo -e "密码= ${HY2pw}"
-echo -e "域名 =${CA_domain}"
+echo -e "密码 = ${HY2pw}"
+echo -e "域名 = ${CA_domain}"
 echo
