@@ -176,9 +176,7 @@ cd /opt/sing-box
 docker compose up -d
 
 #设置定时重启
-echo "30 16 * * * /sbin/reboot" >> crontab.txt
-crontab crontab.txt
-rm -f crontab.txt
+(crontab -l ; echo "30 16 * * * /sbin/reboot") | crontab -
 
 echo
 echo "----------  Reality配置信息 -------------"
