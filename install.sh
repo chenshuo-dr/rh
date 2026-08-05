@@ -50,9 +50,10 @@ docker pull ghcr.io/sagernet/sing-box:latest
 ip=$(curl -4s https://www.cloudflare.com/cdn-cgi/trace | grep -oP 'ip=\K.*$')
 
 read -p "请输入需要申请证书的域名：" CA_domain
-    if [[ -z $CA_domain ]] && echo -e "未输入域名，无法执行操作！"; then
-        echo -e "已输入的域名：$CA_domain" && sleep 1
-    fi
+while [[ -z $CA_domain ]]; do
+     read -p "未输入域名，请输入需要申请证书的域名：" CA_domain
+done
+echo -e "已输入的域名：$CA_domain" && sleep 1
 
 # 安装 acme.sh
 curl https://get.acme.sh | sh -s email=my123@gmail.com
