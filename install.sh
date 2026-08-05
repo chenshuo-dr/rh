@@ -46,15 +46,23 @@ mkdir -p /opt/sing-box/config
 # 拉取镜像
 docker pull ghcr.io/sagernet/sing-box:latest
 
+#本机IP
+ip=$(curl -4s https://www.cloudflare.com/cdn-cgi/trace | grep -oP 'ip=\K.*$')
+
+read -p "请输入需要申请证书的域名：" CA_domain
+    if [[ -z $CA_domain ]] && echo -e "未输入域名，无法执行操作！"; then
+        echo -e "已输入的域名：$CA_domain" && sleep 1
+    fi
+
 # 安装 acme.sh
 curl https://get.acme.sh | sh -s email=my123@gmail.com
 source ~/.bashrc
 
 # 申请证书（需要 80 端口暂时可用）
-~/.acme.sh/acme.sh --issue -d kr.870910.xyz --standalone
+~/.acme.sh/acme.sh --issue -d ${CA_domain} --standalone
 
 # 安装到 sing-box 目录
-~/.acme.sh/acme.sh --install-cert -d kr.870910.xyz \
+~/.acme.sh/acme.sh --install-cert -d ${CA_domain} \
   --key-file /opt/sing-box/cert/privkey.pem \
   --fullchain-file /opt/sing-box/cert/fullchain.pem
 
@@ -166,8 +174,15 @@ EOF
 cd /opt/sing-box
 docker compose up -d
 
+#设置定时重启
+crontab -l 2>/dev/null|sed '/acme.sh/d'|sed '/reboot/d'> crontab.txt
+echo "30 16 * * * /sbin/reboot" >> crontab.txt
+crontab crontab.txt
+rm -f crontab.txt
+
 echo
 echo "----------  Reality配置信息 -------------"
+echo -e "地址 (IP) = ${ip}"
 echo -e "端口 (Port) = 443"
 echo -e "UUID = ${UUID}"
 echo -e "流控 (Flow) = xtls-rprx-vision"
@@ -182,8 +197,9 @@ echo
 
 echo
 echo "----------  Hysteria2配置信息 -------------"
+echo -e "地址 (IP) = ${ip}"
 echo -e "端口 (Port) = 8843"
 echo -e "端口跳跃 (Port) = 10000-30000"
 echo -e "密码= ${HY2pw}"
-echo -e "域名 =kr.870910.xyz "
+echo -e "域名 =${CA_domain}"
 echo
