@@ -176,7 +176,6 @@ cd /opt/sing-box
 docker compose up -d
 
 #设置定时重启
-crontab -l 2>/dev/null|sed '/acme.sh/d'|sed '/reboot/d'> crontab.txt
 echo "30 16 * * * /sbin/reboot" >> crontab.txt
 crontab crontab.txt
 rm -f crontab.txt
